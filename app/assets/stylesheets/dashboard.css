@@ -1,0 +1,8 @@
+.dashboard-well{
+    height: 180px;
+}
+
+.modal {
+    width: 90%; /* respsonsive width */
+    margin-left:-45%; /* width/2) */
+}

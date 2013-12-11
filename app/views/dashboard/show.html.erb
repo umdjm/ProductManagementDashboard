@@ -1,0 +1,47 @@
+
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="#">Product Management Dashboard</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li><%= link_to "Visualization #1" %></li>
+          <li><%= link_to "Visualization #2" %></li>
+          <li><%= link_to "Visualization #3" %></li>
+          <li><%= link_to "Visualization #4", report1_path %></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="span6 well well-large dashboard-well">
+
+      <a data-target="#myModal" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
+
+      <div class="modal fade hide" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-remote="<%= report1_path %>">
+        <div class="modal-header">
+          <h3 id="myModalLabel">Modal header</h3>
+        </div>
+        <div class="modal-body">
+          <p>Will be replace</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+    <div class="span6 well well-large dashboard-well"></div>
+  </div>
+  <div class="row">
+    <div class="span6 well well-large dashboard-well"></div>
+    <div class="span6 well well-large dashboard-well"></div>
+  </div>
+</div>
