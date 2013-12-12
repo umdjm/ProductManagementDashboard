@@ -10,10 +10,10 @@
       <a class="brand" href="#">Product Management Dashboard</a>
       <div class="nav-collapse">
         <ul class="nav">
-          <li><%= link_to "Visualization #1" %></li>
-          <li><%= link_to "Visualization #2" %></li>
-          <li><%= link_to "Visualization #3" %></li>
-          <li><%= link_to "Visualization #4", report1_path %></li>
+          <li><%= link_to "Sales" %></li>
+          <li><%= link_to "Strategies" %></li>
+          <li><%= link_to "Competition" %></li>
+          <li><%= link_to "Product Lines", report1_path %></li>
         </ul>
       </div>
     </div>
@@ -23,25 +23,32 @@
 <div class="container-fluid">
   <div class="row">
     <div class="span6 well well-large dashboard-well">
-
-      <a data-target="#myModal" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
-
-      <div class="modal fade hide" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-remote="<%= report1_path %>">
-        <div class="modal-header">
-          <h3 id="myModalLabel">Modal header</h3>
-        </div>
-        <div class="modal-body">
-          <p>Will be replace</p>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary" data-dismiss="modal">Close</button>
-        </div>
-      </div>
+      <%= render partial: "reportpartial", locals: {chartHeight:180, chartWidth: 600, chartID: "smallChart"} %>
+      <!--<br/>
+      <a data-target="#myModal" role="button" class="btn center" data-toggle="modal">Show Chart</a> -->
     </div>
-    <div class="span6 well well-large dashboard-well"></div>
+    <div class="span6 well well-large dashboard-well">
+      <%= render partial: "seriespartial", locals: {chartHeight:180, chartWidth: 600, chartID: "barchart"} %>
+    </div>
   </div>
   <div class="row">
-    <div class="span6 well well-large dashboard-well"></div>
-    <div class="span6 well well-large dashboard-well"></div>
+    <div class="span6 well well-large dashboard-well">
+      <%= render partial: "piechart", locals: {chartHeight:180, chartWidth: 600, chartID: "pieChart"} %>
+    </div>
+    <div class="span6 well well-large dashboard-well">
+      <%= render partial: "boxchart", locals: {chartHeight:180, chartWidth: 600, chartID: "boxChart"} %></div>
+  </div>
+</div>
+
+
+<div class="modal fade hide" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-remote="<%= report1_path %>">
+  <div class="modal-header">
+    <h3 id="myModalLabel">Sales Over Time</h3>
+  </div>
+  <div class="modal-body">
+    <p>Processing</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" data-dismiss="modal">Close</button>
   </div>
 </div>

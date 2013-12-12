@@ -1,0 +1,31 @@
+
+<h5>Competition</h5>
+<div id="<%= chartID %>">
+</div>
+
+<script type="text/javascript">
+
+    var pieChartExample = {
+        initChart: function()
+        {
+
+            var chart = dc.pieChart("#<%= chartID %>");
+            d3.csv("morley.csv", function(error, experiments) {
+
+            var ndx           = crossfilter(experiments),
+            runDimension  = ndx.dimension(function(d) {return "run-"+d.Run;})
+            speedSumGroup = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run;});
+
+            chart
+            .width(<%= chartWidth %>)
+            .height(<%= chartHeight %>)
+            .slicesCap(4)
+            .dimension(runDimension)
+            .group(speedSumGroup)
+            .legend(dc.legend());
+            chart.render();
+            });
+        }
+    };
+    pieChartExample.initChart();
+</script>

@@ -1,0 +1,44 @@
+
+
+<h5>Strategies</h5>
+<div id="<%= chartID %>">
+</div>
+
+<script type="text/javascript">
+
+  var barChartExample = {
+    initChart: function()
+    {
+
+        var chart = dc.barChart("#<%= chartID %>");
+        d3.csv("morley2.csv", function(error, experiments) {
+
+            experiments.forEach(function(x) {
+                x.Speed = +x.Speed;
+            });
+
+            var ndx                 = crossfilter(experiments),
+                    runDimension        = ndx.dimension(function(d) {return +d.Run;}),
+                    speedSumGroup       = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run / 1000;});
+
+            chart
+                    .width(<%= chartWidth %>)
+                    .height(<%= chartHeight %>)
+                    .x(d3.scale.linear().domain([6,20]))
+                    .elasticY(true)
+                    .elasticX(true)
+                    .brushOn(false)
+                    .yAxisLabel("Sales")
+                    .xAxisLabel("Time")
+                    .dimension(runDimension)
+                    .group(speedSumGroup);
+
+            chart.render();
+
+
+        });
+    }
+  };
+  barChartExample.initChart();
+
+</script>
