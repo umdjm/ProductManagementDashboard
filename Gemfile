@@ -7,7 +7,6 @@ gem 'rails', '3.2.13'
 
 gem 'pg'
 gem 'bcrypt-ruby', '~> 3.0.0'
-gem 'taps'
 
 
 # Gems used only for assets and not required
