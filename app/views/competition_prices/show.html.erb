@@ -1,0 +1,50 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Row:</b>
+  <%= @competition_price.row_id %>
+</p>
+
+<p>
+  <b>From date:</b>
+  <%= @competition_price.from_date %>
+</p>
+
+<p>
+  <b>To date:</b>
+  <%= @competition_price.to_date %>
+</p>
+
+<p>
+  <b>Part number:</b>
+  <%= @competition_price.part_number %>
+</p>
+
+<p>
+  <b>Dealer price:</b>
+  <%= @competition_price.dealer_price %>
+</p>
+
+<p>
+  <b>List price:</b>
+  <%= @competition_price.list_price %>
+</p>
+
+<p>
+  <b>Part category:</b>
+  <%= @competition_price.part_category %>
+</p>
+
+<p>
+  <b>Competition brand:</b>
+  <%= @competition_price.competition_brand %>
+</p>
+
+<p>
+  <b>Competition name:</b>
+  <%= @competition_price.competition_name %>
+</p>
+
+
+<%= link_to 'Edit', edit_competition_price_path(@competition_price) %> |
+<%= link_to 'Back', competition_prices_path %>

@@ -9,31 +9,31 @@
   var barChartExample = {
     initChart: function()
     {
-
-        var chart = dc.barChart("#<%= chartID %>");
-        d3.csv("morley2.csv", function(error, experiments) {
-
-            experiments.forEach(function(x) {
-                x.Speed = +x.Speed;
-            });
-
-            var ndx                 = crossfilter(experiments),
-                    runDimension        = ndx.dimension(function(d) {return +d.Run;}),
-                    speedSumGroup       = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run / 1000;});
+        var chart = dc.seriesChart("#<%= chartID %>");
+        d3.csv("morley.csv", function(error, experiments) {
+            ndx = crossfilter(experiments);
+            runDimension = ndx.dimension(function(d) {return [+d.Expt, +d.Run]; });
+            runGroup = runDimension.group().reduceSum(function(d) { return +d.Speed; });
 
             chart
-                    .width(<%= chartWidth %>)
-                    .height(<%= chartHeight %>)
-                    .x(d3.scale.linear().domain([6,20]))
-                    .elasticY(true)
-                    .elasticX(true)
+                    .width(768)
+                    .height(480)
+                    .chart(function(c) { return dc.lineChart(c).interpolate('basis'); })
+                    .x(d3.scale.linear().domain([0,20]).range([0,20]))
                     .brushOn(false)
-                    .yAxisLabel("Sales")
-                    .xAxisLabel("Time")
+                    .yAxisLabel("Measured Speed km/s")
+                    .xAxisLabel("Run")
+                    .elasticY(true)
                     .dimension(runDimension)
-                    .group(speedSumGroup);
+                    .group(runGroup)
+                    .seriesAccessor(function(d) {return "Expt: " + d.key[0];})
+                    .keyAccessor(function(d) {return +d.key[1];})
+                    .valueAccessor(function(d) {return +d.value - 500;})
+                    .legend(dc.legend().x(350).y(350).itemHeight(13).gap(5).horizontal(1).legendWidth(140).itemWidth(70));
+            chart.yAxis().tickFormat(function(d) {return d3.format(',d')(d+299500);});
+            chart.margins().left += 40;
 
-            chart.render();
+            dc.renderAll();
 
 
         });

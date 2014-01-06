@@ -1,0 +1,79 @@
+
+<h5>Competition</h5>
+<div id="<%= chartID %>">
+  <div id="<%= chartID %>2">
+  </div>
+
+  <script type="text/javascript">
+
+      var scatterChartExample = {
+          initChart: function(ibis_data)
+          {
+              var toolTip = d3.select("body").append("div")
+                      .attr("class", "tooltip");
+
+              var dateFormat = d3.time.format("%Y-%m-%d");
+              ibis_data.forEach(function (d) {
+                  d.part_number = d.part_number;
+                  d.month = d3.time.month(dateFormat.parse(d.month));
+                  d.price = +d.price;
+                  d.competitive_price = +d.competitive_price;
+              });
+
+              var chart = dc.scatterPlot("#<%= chartID %>");
+              var ndx             = crossfilter(ibis_data),
+                      priceDimension  = ndx.dimension(function(d) {return [d.price, d.competitive_price]; }),
+                      priceGroup = priceDimension.group().reduceSum(function(d) {return d.price;});
+
+
+              chart
+                      .width(768)
+                      .height(480)
+                      .elasticY(true)
+                      .elasticX(true)
+                      .x(d3.scale.linear().domain([0,200]))
+                      .yAxisLabel("Average Competitive Price")
+                      .xAxisLabel("Motorcraft Price")
+                      .brushOn(false)
+                      .title(function(p) {
+                          return p.value.part_number;
+                      })
+                      .renderTitle(true)
+                      .dimension(priceDimension)
+                      .group(priceGroup)
+              chart.render();
+
+
+              d3.selectAll(".symbol")
+                      .on("mouseover", function(d) {
+                          toolTip.transition()
+                                  .duration(200)
+                                  .style("opacity", .9);
+                          toolTip.html("Price: $" + d.key[0]
+                                          + "<br/>"
+                                          + "Competition: $" + d.key[1])
+                                  .style("left", (d3.event.pageX) + "px")
+                                  .style("top", (d3.event.pageY - 28) + "px");
+                      })
+                      .on("mouseout", function(d) {
+                          toolTip.transition()
+                                  .duration(1000)
+                                  .style("opacity", 0);
+                      });
+          },
+
+          initialize: function()
+          {
+              $.ajax({
+                  type: "GET",
+                  dataType: "json",
+                  async: false,
+                  url: "/retrieve_data",
+                  success: function(data){
+                      scatterChartExample.initChart(data);
+                  }
+              });
+          }
+      };
+      scatterChartExample.initialize();
+  </script>

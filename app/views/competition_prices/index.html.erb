@@ -1,0 +1,41 @@
+<h1>Listing competition_prices</h1>
+
+<table>
+  <tr>
+    <th>Row</th>
+    <th>From date</th>
+    <th>To date</th>
+    <th>Part number</th>
+    <th>Dealer price</th>
+    <th>List price</th>
+    <th>Part category</th>
+    <th>Competition Part Number</th>
+    <th>Competition brand</th>
+    <th>Competition name</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @competition_prices.each do |competition_price| %>
+  <tr>
+    <td><%= competition_price.row_id %></td>
+    <td><%= competition_price.from_date %></td>
+    <td><%= competition_price.to_date %></td>
+    <td><%= competition_price.part_number %></td>
+    <td><%= competition_price.dealer_price %></td>
+    <td><%= competition_price.list_price %></td>
+    <td><%= competition_price.part_category %></td>
+    <td><%= competition_price.competition_part_number %></td>
+    <td><%= competition_price.competition_brand %></td>
+    <td><%= competition_price.competition_name %></td>
+    <td><%= link_to 'Show', competition_price %></td>
+    <td><%= link_to 'Edit', edit_competition_price_path(competition_price) %></td>
+    <td><%= link_to 'Destroy', competition_price, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Competition price', new_competition_price_path %>

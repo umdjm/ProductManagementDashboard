@@ -1,0 +1,33 @@
+<h1>Listing IBIS data</h1>
+
+<table>
+  <tr>
+    <th>Row</th>
+    <th>From date</th>
+    <th>To date</th>
+    <th>Part number</th>
+    <th>Dealer price</th>
+    <th>List price</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @ibis_data.each do |ibi| %>
+  <tr>
+    <td><%= ibi.row_id %></td>
+    <td><%= ibi.from_date %></td>
+    <td><%= ibi.to_date %></td>
+    <td><%= ibi.part_number %></td>
+    <td><%= ibi.dealer_price %></td>
+    <td><%= ibi.list_price %></td>
+    <td><%= link_to 'Show', ibi %></td>
+    <td><%= link_to 'Edit', edit_ibis_datum_path(ibi) %></td>
+    <td><%= link_to 'Destroy', ibi, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Ibi', new_ibis_datum_path %>

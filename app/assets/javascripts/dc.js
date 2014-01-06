@@ -4506,7 +4506,7 @@ dc = (function(){
             _chart.r().range([_chart.MIN_RADIUS, _chart.xAxisLength() * _chart.maxBubbleRelativeSize()]);
 
             var bubbleG = _chart.chartBodyG().selectAll("g." + _chart.BUBBLE_NODE_CLASS)
-                .data(_chart.data(),_chart.keyAccessor());
+                .data(_chart.data(), function (d) { return d.key; });
 
             renderNodes(bubbleG);
 

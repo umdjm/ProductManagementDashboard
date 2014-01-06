@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  part_number: MyString
+  part_category: MyString
+  part_name: MyString
+
+two:
+  part_number: MyString
+  part_category: MyString
+  part_name: MyString

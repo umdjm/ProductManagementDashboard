@@ -1,0 +1,43 @@
+
+<h5>Competition</h5>
+<div id="<%= chartID %>"/>
+</div>
+<div id="<%= chartID %>2"/>
+</div>
+
+<script type="text/javascript">
+
+    var pieChartExample = {
+        initChart: function()
+        {
+            var chart = dc.lineChart("#<%= chartID %>");
+            d3.csv("morley.csv", function(error, experiments) {
+
+                experiments.forEach(function(x) {
+                    x.Speed = +x.Speed;
+                });
+
+                alert(JSON.stringify(experiments));
+
+                var ndx                 = crossfilter(experiments),
+                        runDimension        = ndx.dimension(function(d) {return +d.Run;}),
+                        speedSumGroup       = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run / 1000;});
+
+                chart
+                        .width(768)
+                        .height(480)
+                        .x(d3.scale.linear().domain([0,230]))
+                        .elasticX(true)
+                        .renderArea(true)
+                        .brushOn(false)
+                        .renderDataPoints(true)
+                        .yAxisLabel("This is the Y Axis!")
+                        .dimension(runDimension)
+                        .group(speedSumGroup);
+
+                dc.renderAll();
+            });
+        }
+    };
+    pieChartExample.initChart();
+</script>

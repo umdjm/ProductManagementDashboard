@@ -1,0 +1,55 @@
+
+<h5>Competition</h5>
+<div id="<%= chartID %>"/>
+</div>
+<div id="<%= chartID %>2"/>
+</div>
+
+<script type="text/javascript">
+
+    var pieChartExample = {
+        initChart: function()
+        {
+            var chart = dc.rowChart("#<%= chartID %>");
+            var chart2 = dc.scatterPlot("#<%= chartID %>2");
+            d3.csv("morley.csv", function(error, experiments) {
+
+                experiments.forEach(function(x) {
+                    x.Speed = +x.Speed;
+                });
+
+                var ndx                 = crossfilter(experiments),
+                        runDimension        = ndx.dimension(function(d) {return +d.Run;}),
+                        speedSumGroup       = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run / 1000;});
+
+                chart
+                        .width(300)
+                        .height(220)
+                        .margins({top: 5, left: 10, right: 10, bottom: 20})
+                        .dimension(runDimension)
+                        .group(speedSumGroup)
+                        .colors(d3.scale.category10())
+                        .elasticX(true)
+                        .xAxis().ticks(4);
+
+                experiments.forEach(function(x) {
+                    x.Speed = +x.Speed;
+                });
+
+                var runDimension2        = ndx.dimension(function(d) {return [+d.Run, +d.Expt]; }),
+                    speedSumGroup2       = runDimension2.group().reduceSum(function(d) { return d.Run; });
+
+                chart2
+                        .width(768)
+                        .height(480)
+                        .x(d3.scale.linear().domain([6,20]))
+                        .yAxisLabel("This is the Y Axis!")
+                        .dimension(runDimension2)
+                        .group(speedSumGroup2);
+
+                dc.renderAll();
+            });
+        }
+    };
+    pieChartExample.initChart();
+</script>
