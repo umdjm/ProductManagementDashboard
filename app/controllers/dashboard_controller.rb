@@ -2,7 +2,7 @@ class DashboardController < ApplicationController
 
   before_filter :authorize
 
-  def report1
+  def competition
 
   end
 

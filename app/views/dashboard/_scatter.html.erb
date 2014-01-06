@@ -1,7 +1,7 @@
 
 <div id="charts" class="row">
     <div id="<%= chartID %>" class="chart span4">
-        <strong>Average Competitive Prices</strong>
+        <strong>Price Comparison</strong>
     </div>
     <div class="chart span3">
         <div id="<%= chartID %>2"><strong>Part Category Filter</strong></div>
@@ -14,7 +14,7 @@
 <div class="row">
   <div class="span3"/>
   <div class="chart span9">
-    <div id="<%= chartID %>4"></div>
+    <div id="<%= chartID %>4"><strong>Month Filter</strong></div>
   </div>
 </div>
 
@@ -107,7 +107,7 @@
                     .radiusValueAccessor(function(d) {
                         if(d.value.count === 0)
                             return 0;
-                        else return 1;})
+                        else return 3;})
                     .renderHorizontalGridLines(true)
                     .renderVerticalGridLines(true)
                     .xAxisPadding(5)

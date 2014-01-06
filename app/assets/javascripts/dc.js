@@ -2950,7 +2950,7 @@ dc = (function(){
 
         _chart.BUBBLE_NODE_CLASS = "node";
         _chart.BUBBLE_CLASS = "bubble";
-        _chart.MIN_RADIUS = 10;
+        _chart.MIN_RADIUS = 1;
 
         _chart = dc.colorMixin(_chart);
 

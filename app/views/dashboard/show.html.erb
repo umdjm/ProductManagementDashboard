@@ -2,25 +2,25 @@
 <div class="container-fluid">
   <div class="row">
     <div class="span6 well well-large dashboard-well">
-      <%= render partial: "reportpartial", locals: {chartHeight:180, chartWidth: 600, chartID: "smallChart"} %>
+      <%= render partial: "reportpartial", locals: {chartHeight:180, chartWidth: 400, chartID: "smallChart"} %>
       <!--<br/>
       <a data-target="#myModal" role="button" class="btn center" data-toggle="modal">Show Chart</a> -->
     </div>
     <div class="span6 well well-large dashboard-well">
-      <%= render partial: "seriespartial", locals: {chartHeight:180, chartWidth: 600, chartID: "barchart"} %>
+      <%= render partial: "seriespartial", locals: {chartHeight:180, chartWidth: 400, chartID: "barchart"} %>
     </div>
   </div>
   <div class="row">
     <div class="span6 well well-large dashboard-well">
-      <%= render partial: "piechart", locals: {chartHeight:180, chartWidth: 600, chartID: "pieChart"} %>
+      <%= render partial: "piechart", locals: {chartHeight:180, chartWidth: 400, chartID: "pieChart"} %>
     </div>
     <div class="span6 well well-large dashboard-well">
-      <%= render partial: "scatter", locals: {chartHeight:180, chartWidth: 600, chartID: "scatterChart"} %></div>
+      <%= render partial: "scatter_small", locals: {chartHeight:200, chartWidth: 400, chartID: "scatterChart"} %></div>
   </div>
 </div>
 
 
-<div class="modal fade hide" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-remote="<%= report1_path %>">
+<div class="modal fade hide" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-remote="<%= competition_path %>">
   <div class="modal-header">
     <h3 id="myModalLabel">Sales Over Time</h3>
   </div>

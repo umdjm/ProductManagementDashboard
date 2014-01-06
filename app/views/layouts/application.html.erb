@@ -23,13 +23,13 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </a>
-      <a class="brand" href="#">Product Management Dashboard</a>
+      <%= link_to "Product Management Dashboard", root_path, {:class=>"brand"} %>
       <div class="nav-collapse">
         <ul class="nav">
           <li><%= link_to "Sales" %></li>
           <li><%= link_to "Strategies" %></li>
-          <li><%= link_to "Competition" %></li>
-          <li><%= link_to "Product Lines", report1_path %></li>
+          <li><%= link_to "Competition", competition_path %></li>
+          <li><%= link_to "Product Lines" %></li>
           <% if current_user %>
               <li><%= link_to "Log Out", logout_path %></li>
           <% end %>

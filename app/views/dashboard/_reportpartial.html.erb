@@ -8,7 +8,7 @@
 
   var lineChartExample = {
       initChart: function(){
-    var chart = dc.lineChart("#<%= chartID %>");
+    var lineChart = dc.lineChart("#<%= chartID %>");
     d3.csv("morley.csv", function(error, experiments) {
 
         experiments.forEach(function(x) {
@@ -19,7 +19,7 @@
                 runDimension        = ndx.dimension(function(d) {return +d.Run;}),
                 speedSumGroup       = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run / 1000;});
 
-        chart
+        lineChart
                 .width(<%= chartWidth %>)
                 .height(<%= chartHeight %>)
                 .x(d3.scale.linear().domain([0,20]))
@@ -30,11 +30,13 @@
                 .dimension(runDimension)
                 .group(speedSumGroup);
 
-        chart.render();
+        lineChart.render();
 
     });
     }
   };
 
-  lineChartExample.initChart();
+  $( document ).ready(function() {
+      lineChartExample.initChart();
+  });
 </script>
