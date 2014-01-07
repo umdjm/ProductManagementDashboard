@@ -12,9 +12,16 @@
 </div>
 
 <div class="row">
-  <div class="span3"/>
-  <div class="chart span9">
-    <div id="<%= chartID %>4"><strong>Month Filter</strong></div>
+  <div class="chart span12">
+    <div id="<%= chartID %>4"><strong>Month Filter</strong><br/></div>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="span5"></div>
+  <div class="chart span7">
+    <button type="button" class="btn btn-info reset" onclick="javascript:dc.filterAll();dc.redrawAll();">Reset Filters</button>
   </div>
 </div>
 
@@ -42,6 +49,7 @@
     var scatterChartExample = {
         initChart: function(ibis_data)
         {
+            var dateFormat = d3.time.format("%b %Y");
             var timeExtent = d3.extent(ibis_data, function(d) { return d.month});
             var chart = dc.bubbleChart("#<%= chartID %>");
             var chart2 = dc.rowChart("#<%= chartID %>2");
@@ -49,7 +57,7 @@
             var dateChart = dc.barChart("#<%= chartID %>4");
 
             var ndx             = crossfilter(ibis_data),
-                dateDimension   = ndx.dimension(function(d) {return d.month; }),
+                dateDimension   = ndx.dimension(function(d) {return dateFormat(d.month); }),
                 dateGroup       = dateDimension.group().reduceCount(),
                 priceDimension  = ndx.dimension(function(d) {return d.part_number; }),
                 priceGroup = priceDimension.group().reduce(
@@ -80,17 +88,18 @@
                 categoryDimension    = ndx.dimension(function(d) {return d.part_category;}),
                 categoryGroup        = categoryDimension.group().reduceCount();
 
+            var months = ["Jan 2013", "Feb 2013","Mar 2013","Apr 2013","May 2013","Jun 2013","Jul 2013","Aug 2013","Sep 2013","Oct 2013","Nov 2013","Dec 2013"];
+
             dateChart
                     .elasticY(true)
                     .renderHorizontalGridLines(true)
                     .width(1043)
                     .height(100)
-                    .x(d3.time.scale().domain(timeExtent))
-                    .brushOn(true)
+                    .gap(10)
+                    .x(d3.scale.ordinal().domain(months))
                     .colors(d3.scale.ordinal().domain([""]).range(["#7f7f7f"]))
-                    .round(d3.time.month.round)
                     .yAxisLabel("Price Points")
-                    .xUnits(d3.time.months)
+                    .xUnits(dc.units.ordinal)
                     .dimension(dateDimension)
                     .group(dateGroup)
                     .yAxis().ticks(3);
@@ -167,8 +176,6 @@
                     .colors(d3.scale.ordinal().domain([""]).range(["#7f7f7f"]))
                     .elasticX(true)
                     .xAxis().ticks(4);
-
-            var dateFormat = d3.time.format("%b %Y");
 
             var datatable = $("#dc-data-table").dataTable({
                 "bPaginate": false,
