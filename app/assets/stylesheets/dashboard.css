@@ -7,6 +7,10 @@
     text-align: center;
 }
 
+.well-large {
+    width: 380px;
+}
+
 .modal {
     width: 90%; /* respsonsive width */
     margin-left:-45%; /* width/2) */
