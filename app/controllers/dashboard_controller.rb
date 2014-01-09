@@ -16,7 +16,7 @@ class DashboardController < ApplicationController
   def retrieve_data
     data = []
     CompetitionPrice.includes(:ibis_datum).where("ibis_datum_id IS NOT NULL").each do |row|
-      data <<  {"competition_name" => row.competition_name, "month" => row.from_date, "competitive_price" => row.dealer_price, "price" => row.ibis_datum.dealer_price, "part_category" => row.part_category, "part_number" => row.part_number}
+      data <<  {"competition_name" => row.competition_name, "month" => row.from_date, "competitive_price" => row.dealer_price, "price" => row.ibis_datum.list_price, "part_category" => row.part_category, "part_number" => row.part_number, "competitive_list_price" => row.list_price, "list_price" => row.ibis_datum.list_price }
     end
 
     respond_to do |format|

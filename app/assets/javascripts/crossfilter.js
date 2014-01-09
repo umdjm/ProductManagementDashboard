@@ -1070,6 +1070,11 @@
                 function updateMany(filterOne, added, removed) {
                     if (filterOne === one || resetNeeded) return;
 
+                    if (!reduceRemove && removed.length) {
+                        resetNeeded = true;
+                        return;
+                    }
+
                     var i,
                         k,
                         n,
@@ -1096,6 +1101,11 @@
                 // This function is only used when the cardinality is 1.
                 function updateOne(filterOne, added, removed) {
                     if (filterOne === one || resetNeeded) return;
+
+                    if (!reduceRemove && removed.length) {
+                        resetNeeded = true;
+                        return;
+                    }
 
                     var i,
                         k,

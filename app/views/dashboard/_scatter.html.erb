@@ -2,6 +2,9 @@
 <div id="charts" class="row">
     <div id="<%= chartID %>" class="chart span4">
         <strong>Price Comparison</strong>
+
+        <button onclick="scatterChartExample.useAverages()">Average Prices</button>
+        <button onclick="scatterChartExample.useMax()">Highest Price</button>
     </div>
     <div class="chart span3">
         <div id="<%= chartID %>2"><strong>Part Category Filter</strong></div>
@@ -10,6 +13,7 @@
         <div id="<%= chartID %>3"><strong>Competition Filter</strong></div>
     </div>
 </div>
+
 
 <div class="row">
   <div class="chart span12">
@@ -34,8 +38,10 @@
                   <th>Competition Name</th>
                   <th>Part Number</th>
                   <th>Month</th>
-                  <th>Price</th>
-                  <th>Competitive Price</th>
+                  <th>Dealer Price</th>
+                  <th>Competitive Dealer Price</th>
+                  <th>List Price</th>
+                  <th>Competitive List Price</th>
                   <th>Part Category</th>
                 </tr>
             </thead>
@@ -46,43 +52,39 @@
 
 <script type="text/javascript">
 
+  var chart, ndx, priceDimension, priceGroup, maxFunction, displayType;
     var scatterChartExample = {
+
         initChart: function(ibis_data)
         {
             var dateFormat = d3.time.format("%b %Y");
             var timeExtent = d3.extent(ibis_data, function(d) { return d.month});
-            var chart = dc.bubbleChart("#<%= chartID %>");
+            chart = dc.bubbleChart("#<%= chartID %>");
             var chart2 = dc.rowChart("#<%= chartID %>2");
             var chart3 = dc.rowChart("#<%= chartID %>3");
             var dateChart = dc.barChart("#<%= chartID %>4");
 
-            var ndx             = crossfilter(ibis_data),
-                dateDimension   = ndx.dimension(function(d) {return dateFormat(d.month); }),
+            ndx             = crossfilter(ibis_data);
+            priceDimension  = ndx.dimension(function(d) {return d.part_number; });
+            priceGroup = priceDimension.group().reduce(
+                function (p, v) {
+                    ++p.count;
+                    p.part_category = v.part_category;
+                    p.sumPrice += v.price;
+                    p.sumCompetitivePrice += v.competitive_price;
+                    if(p.maxCompetitivePrice < v.competitive_price)
+                        p.maxCompetitivePrice = v.competitive_price;
+                    p.avgPrice = p.sumPrice/p.count;
+                    p.avgCompetitivePrice = p.sumCompetitivePrice/p.count;
+                    return p;
+                },
+                null,
+                function () {
+                    return { count:0, part_category: "", maxCompetitivePrice: 0, sumPrice:0, avgPrice:0, sumCompetitivePrice: 0, avgCompetitivePrice:0 };
+                }
+            );
+            var dateDimension   = ndx.dimension(function(d) {return dateFormat(d.month); }),
                 dateGroup       = dateDimension.group().reduceCount(),
-                priceDimension  = ndx.dimension(function(d) {return d.part_number; }),
-                priceGroup = priceDimension.group().reduce(
-                        function (p, v) {
-                            ++p.count;
-                            p.part_category = v.part_category;
-                            p.sumPrice += v.price;
-                            p.sumCompetitivePrice += v.competitive_price;
-                            p.avgPrice = p.sumPrice/p.count;
-                            p.avgCompetitivePrice = p.sumCompetitivePrice/p.count;
-                            return p;
-                        },
-                        function (p, v) {
-                            --p.count;
-                            p.sumPrice -= v.price;
-                            p.part_category = v.part_category;
-                            p.sumCompetitivePrice -= v.competitive_price;
-                            p.avgPrice = p.count ? p.sumPrice/p.count : 0;
-                            p.avgCompetitivePrice = p.count ? p.sumCompetitivePrice : 0;
-                            return p;
-                        },
-                        function () {
-                            return { count:0, part_category: "", sumPrice:0, avgPrice:0, sumCompetitivePrice: 0, avgCompetitivePrice:0 };
-                        }
-                ),
                 competitionDimension = ndx.dimension(function(d) {return d.competition_name;}),
                 competitionGroup     = competitionDimension.group().reduceCount(),
                 categoryDimension    = ndx.dimension(function(d) {return d.part_category;}),
@@ -104,9 +106,9 @@
                     .group(dateGroup)
                     .yAxis().ticks(3);
 
-            var maxValue = d3.max(priceGroup.all(), function (d) {
-                return Math.max(d.value.avgCompetitivePrice, d.value.avgPrice);
-            });
+            displayType = "Avg";
+            maxFunction = function (d) {return Math.max(d.value.avgCompetitivePrice, d.value.avgPrice);};
+            maxValue = d3.max(priceGroup.all(), maxFunction);
             maxValue = Math.round(maxValue/10 + 1) * 10;
             chart
                     .width(443)
@@ -143,9 +145,7 @@
 
             chart.renderlet(function (chart) {
                 dc.events.trigger(function () {
-                    var maxValue = d3.max(priceGroup.all(), function (d) {
-                        return Math.max(d.value.avgCompetitivePrice, d.value.avgPrice);
-                    });
+                    var maxValue = d3.max(priceGroup.all(), maxFunction);
                     maxValue = Math.round(maxValue/10 + 1) * 10;
                     chart.yAxis().scale(d3.scale.linear().domain([0,maxValue]).range(chart.yAxis().scale().range()));
                     chart.y(d3.scale.linear().domain([0, maxValue]));
@@ -200,6 +200,8 @@
                     },
                     { "mData": "price", "sDefaultContent": " " },
                     { "mData": "competitive_price", "sDefaultContent": " " },
+                    { "mData": "list_price", "sDefaultContent": " " },
+                    { "mData": "competitive_list_price", "sDefaultContent": " " },
                     { "mData": "part_category", "sDefaultContent": " " }
                 ]
             });
@@ -217,6 +219,26 @@
                 chartI.on("filtered", RefreshTable);
             }
             dc.renderAll();
+        },
+        useMax: function()
+        {
+            if(displayType == 'Max')
+                return;
+            displayType = 'Max';
+            chart.valueAccessor(function(d){ return d.value.maxCompetitivePrice });
+            chart.yAxisLabel("Highest Competitive Price");
+            maxFunction = function (d) {return Math.max(d.value.maxCompetitivePrice, d.value.avgPrice);};
+            chart.render();
+        },
+        useAverages: function()
+        {
+            if(displayType == 'Avg')
+                return;
+            displayType = 'Avg';
+            chart.valueAccessor(function(d){ return d.value.avgCompetitivePrice });
+            chart.yAxisLabel("Average Competitive Price");
+            maxFunction = function (d) {return Math.max(d.value.avgCompetitivePrice, d.value.avgPrice);};
+            chart.render();
         },
 
         initialize: function()
@@ -241,4 +263,5 @@
         }
     };
     scatterChartExample.initialize();
+
 </script>
