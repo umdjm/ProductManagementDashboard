@@ -2,9 +2,10 @@
 <div id="charts" class="row">
     <div id="<%= chartID %>" class="chart span4">
         <strong>Price Comparison</strong>
-
-        <button onclick="scatterChartExample.useAverages()">Average Prices</button>
-        <button onclick="scatterChartExample.useMax()">Highest Price</button>
+        <div class="btn-group btn-group-xs">
+          <button type="button" id="useAvgBtn" class="btn btn-default active" onclick="scatterChartExample.useAverages()">Average Prices</button>
+          <button type="button" id="useMaxBtn" class="btn btn-default" onclick="scatterChartExample.useMax()">Highest Price</button>
+        </div>
     </div>
     <div class="chart span3">
         <div id="<%= chartID %>2"><strong>Part Category Filter</strong></div>
@@ -224,6 +225,8 @@
         {
             if(displayType == 'Max')
                 return;
+            $("#useAvgBtn").removeClass("active");
+            $("#useMaxBtn").addClass("active");
             displayType = 'Max';
             chart.valueAccessor(function(d){ return d.value.maxCompetitivePrice });
             chart.yAxisLabel("Highest Competitive Price");
@@ -234,6 +237,8 @@
         {
             if(displayType == 'Avg')
                 return;
+            $("#useMaxBtn").removeClass("active");
+            $("#useAvgBtn").addClass("active");
             displayType = 'Avg';
             chart.valueAccessor(function(d){ return d.value.avgCompetitivePrice });
             chart.yAxisLabel("Average Competitive Price");
