@@ -161,7 +161,6 @@
             chart2
                     .width(300)
                     .height(400)
-                    .margins({top: 5, left: 10, right: 10, bottom: 43})
                     .dimension(categoryDimension)
                     .group(categoryGroup)
                     .colors(d3.scale.ordinal().domain(["OE MOTORCRAFT ROTOR AND DRUM", "BRAKE DRUM ASSEMBLIES", "HUB ASSEMBLIES", "MOTORCRAFT NON-RETAIL ROTOR & DRUM"]).range(["#ff7f0e", "#2ca02c", "#d62728", "#1f77b4"]))
@@ -171,7 +170,6 @@
             chart3
                     .width(300)
                     .height(400)
-                    .margins({top: 5, left: 10, right: 10, bottom: 43})
                     .dimension(competitionDimension)
                     .group(competitionGroup)
                     .colors(d3.scale.ordinal().domain([""]).range(["#7f7f7f"]))
@@ -220,6 +218,20 @@
                 chartI.on("filtered", RefreshTable);
             }
             dc.renderAll();
+
+            function AddXAxis(chartToUpdate, displayText)
+            {
+
+                chartToUpdate.svg()
+                        .append("text")
+                        .attr("class", "x-axis-label")
+                        .attr("text-anchor", "middle")
+                        .attr("x", chart2.width()/2)
+                        .attr("y", chart2.height()-3.5)
+                        .text(displayText);
+            }
+            AddXAxis(chart2, "Number of Price Points");
+            AddXAxis(chart3, "Number of Price Points");
         },
         useMax: function()
         {
