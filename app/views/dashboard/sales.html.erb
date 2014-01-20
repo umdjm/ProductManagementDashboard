@@ -1,28 +1,30 @@
 
 <div id="charts" class="row">
-  <div id="SalesChart" class="chart span7">
+  <div class="chart span12">
     <strong>Sales</strong>
   </div>
-  <div class="chart span3">
-    <div id="CategoryChart">
-      <strong>Part Category Filter</strong>
-    </div>
-  </div>
 </div>
-
-
-<div class="row">
-  <div class="chart span12">
-    <div id="PartChart"><strong>Part List</strong><br/></div>
+<div id="charts" class="row">
+  <div id="SalesChart" class="chart span12">
   </div>
 </div>
 
 <div class="row">
-  <div class="span5"></div>
-  <div class="chart span7">
-    <button type="button" class="btn btn-info reset" onclick="salesChart.clearFilters()">Reset Filters</button>
+<div class="span12">
+  <div id="tablecontainer">
+    <table id="dc-data-table" class="list table table-striped table-bordered">
+      <thead>
+      <tr>
+        <th data-dynatable-column="part_category">Part Category</th>
+        <th data-dynatable-column="key">Part Number</th>
+        <th data-dynatable-column="sum">Cumulative Revenue</th>
+        <th data-dynatable-column="quantity">Cumulative Quantity</th>
+      </tr>
+      </thead>
+    </table>
   </div>
 </div>
+
 
 <script type="text/javascript">
 
@@ -30,25 +32,27 @@
     var salesChart = {
         clearFilters: function()
         {
-            brush.clear();
-            d3.selectAll(".brush").call(brush);
             dc.filterAll();
             dc.redrawAll();
         },
         initChart: function(data)
         {
             var addC = function(p, d){
+                        p.count++;
                         p.part_category = d.part_category;
-                        p.sum +=  d.retail_revenue;
+                        p.sum += d.retail_revenue;
+                        p.quantity += d.retail_quantity;
                         return p;
                     },
                 remC = function(p, d){
+                    p.count--;
                     p.part_category = d.part_category;
                     p.sum -= d.retail_revenue;
+                    p.quantity -= d.retail_quantity;
                     return p;
                 },
                 ini = function(){
-                    return {sum: 0, part_category: ""};
+                    return {count: 0, sum: 0, quantity: 0, part_category: ""};
                 },
                 order = function(p){
                     return -p.sum;
@@ -62,19 +66,13 @@
                 saleGroup           = saleDimension.group().reduce(addC, remC, ini),
                 chart               = dc.seriesChart("#SalesChart"),
 
-
                 partDimension       = ndx.dimension(function(d) {return d.part_number; }),
                 partGroup           = partDimension.group().reduce(addC, remC, ini),
-                partChart           = dc.barChart("#PartChart"),
-
-                categoryDimension   = ndx.dimension(function(d) {return d.part_category;}),
-                categoryGroup       = categoryDimension.group().reduceCount(),
-                chart2              = dc.rowChart("#CategoryChart"),
 
                 extent              = d3.extent(data, function(d){return d.from_date;});
 
             chart
-                    .width(700)
+                    .width(1000)
                     .height(400)
                     .margins({left: 40, right: 30, top: 0, bottom: 40})
                     .dimension(saleDimension)
@@ -105,10 +103,10 @@
                             "Month: " + dateFormat(d.key[0]),
                             "Part Number: " + d.key[1],
                             "Part Category: " + d.value.part_category,
-                            "Retail Revenue: $" + d3.round(d.value.sum, 2)
+                            "Retail Revenue: $" + d3.round(d.value.sum, 2),
+                            "Count: " + d.value.count
                         ].join("\n");
-                    });;
-
+                    });
             chart.xAxis().tickFormat(function(v) {return dateFormat(v);});
 
             accounting.settings.currency.format = {
@@ -118,88 +116,57 @@
             };
             chart.yAxis().tickFormat(function(v) {return accounting.formatMoney(v, "$", 0);});
 
-            chart2
-                    .width(300)
-                    .height(388)
-                    .margins({left: 40, right: 0, top: 0, bottom: 40})
-                    .dimension(categoryDimension)
-                    .group(categoryGroup)
-                    .colors(d3.scale.ordinal().domain(["OE MOTORCRAFT ROTOR AND DRUM", "BRAKE DRUM ASSEMBLIES", "HUB ASSEMBLIES", "MOTORCRAFT NON-RETAIL ROTOR & DRUM"]).range(["#ff7f0e", "#2ca02c", "#d62728", "#1f77b4"]))
-                    .elasticX(true)
-                    .xAxis().ticks(4);
-
-            var partGroupings = partGroup.order(order).top(Infinity);
-            var parts = [];
-            for (var i = 0; i < partGroupings.length; i++)
-                parts.push(partGroupings[i].key);
-            var partX = d3.scale.ordinal().domain(parts);
-
-            partChart
-                    .dimension(partDimension)
-                    .group(partGroup)
-                    .gap(0)
-                    .margins({left: 40, right: 40, top: 10, bottom: 10})
-                    .x(partX)
-                    .width(1043)
-                    .height(150)
-                    .elasticY(true)
-                    .renderHorizontalGridLines(true)
-                    .colors(d3.scale.ordinal().domain([""]).range(["#7f7f7f"]))
-                    .yAxisLabel("Yearly Revenue")
-                    .xAxisLabel("Part")
-                    .xUnits(dc.units.ordinal)
-                    .valueAccessor(function(d) {return d.value.sum});
-
-            partChart.yAxis().ticks(4);
-            partChart.xAxis().tickValues([]);
-
+            var tableData = partGroup.top(Infinity);
+            tableData.forEach(function (d) {
+                d.part_category = d.value.part_category;
+                d.sum = Math.round(d.value.sum * 100)/100;
+                d.quantity = d.value.quantity;
+            });
+            $('#dc-data-table').dynatable({
+                dataset: {
+                    records: tableData,
+                    perPageDefault: 5,
+                    perPageOptions: [5, 10, 15]
+                }
+            });
 
             dc.renderAll();
+            function updateChart(e, rows) {
+                var part_numbers = [];
+                $("#dc-data-table tbody tr td:nth-child(2)").each(function () {
+                    var part_number = $(this).text();
+                    part_numbers.push(part_number);
+                });
 
-            brush = d3.svg.brush()
-                    .x(partX)
-                    .on("brush", brushmove)
-                    .on("brushend", brushend);
-            partChart.svg()
-                    .append("g")
-                    .attr("class", "brush")
-                    .call(brush)
-                    .attr("transform", "translate(52,10)")
-                    .selectAll("rect")
-                    .attr("height", 140);
+                partDimension.filter(function(d){
+                    if($.inArray(d, part_numbers) >= 0)
+                        return true;
+                    return false;
+                });
+                $("#dc-data-table tbody tr td:nth-child(2)").click(function(){
+                    var part_number = $(this).text();
+                    $("#dynatable-query-search-dc-data-table").val(part_number);
+                    e = $.Event('keypress');
+                    e.which = 13;
+                    $("#dynatable-query-search-dc-data-table").trigger(e);
+                });
 
-            function brushmove() {
-                var s = d3.event.target.extent();
-                partDimension.filter(
-                        function(d){
-                            var val = partX(d);
-                            if(val < s[0])
-                                return false;
-                            if(val > s[1])
-                                return false;
-                            else return true;
-                        }
-                );
+                function isNotEmpty(element) {
+                    return element.value.count > 0;
+                }
+
+                chart.data(function(group) {
+                    return group.top(Infinity).filter(isNotEmpty);
+
+                });
+
                 dc.redrawAll();
             }
-            function brushend() {
-                if(d3.event.target.empty())
-                    partDimension.filterAll();
-                dc.redrawAll();
-            }
 
-            function AddXAxis(chartToUpdate, displayText)
-            {
 
-                chartToUpdate.svg()
-                        .append("text")
-                        .attr("class", "x-axis-label")
-                        .attr("text-anchor", "middle")
-                        .attr("x", chartToUpdate.width()/2)
-                        .attr("y", chartToUpdate.height()-3.5)
-                        .text(displayText);
-            }
-            AddXAxis(chart2, "Number of Sales Records");
+
+            $('#dc-data-table').bind('dynatable:afterUpdate', updateChart);
+            updateChart();
 
         },
         initialize: function()
