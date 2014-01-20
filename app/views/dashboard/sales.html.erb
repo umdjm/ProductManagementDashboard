@@ -1,0 +1,232 @@
+
+<div id="charts" class="row">
+  <div id="SalesChart" class="chart span7">
+    <strong>Sales</strong>
+  </div>
+  <div class="chart span3">
+    <div id="CategoryChart">
+      <strong>Part Category Filter</strong>
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="chart span12">
+    <div id="PartChart"><strong>Part List</strong><br/></div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="span5"></div>
+  <div class="chart span7">
+    <button type="button" class="btn btn-info reset" onclick="salesChart.clearFilters()">Reset Filters</button>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+    var chart, ndx, partDimension, partGroup, brush;
+    var salesChart = {
+        clearFilters: function()
+        {
+            brush.clear();
+            d3.selectAll(".brush").call(brush);
+            dc.filterAll();
+            dc.redrawAll();
+        },
+        initChart: function(data)
+        {
+            var addC = function(p, d){
+                        p.part_category = d.part_category;
+                        p.sum +=  d.retail_revenue;
+                        return p;
+                    },
+                remC = function(p, d){
+                    p.part_category = d.part_category;
+                    p.sum -= d.retail_revenue;
+                    return p;
+                },
+                ini = function(){
+                    return {sum: 0, part_category: ""};
+                },
+                order = function(p){
+                    return -p.sum;
+                };
+
+            var dateFormat = d3.time.format("%b");
+
+            var ndx                 = crossfilter(data),
+
+                saleDimension       = ndx.dimension(function(d) {return [d.from_date, d.part_number]; }),
+                saleGroup           = saleDimension.group().reduce(addC, remC, ini),
+                chart               = dc.seriesChart("#SalesChart"),
+
+
+                partDimension       = ndx.dimension(function(d) {return d.part_number; }),
+                partGroup           = partDimension.group().reduce(addC, remC, ini),
+                partChart           = dc.barChart("#PartChart"),
+
+                categoryDimension   = ndx.dimension(function(d) {return d.part_category;}),
+                categoryGroup       = categoryDimension.group().reduceCount(),
+                chart2              = dc.rowChart("#CategoryChart"),
+
+                extent              = d3.extent(data, function(d){return d.from_date;});
+
+            chart
+                    .width(700)
+                    .height(400)
+                    .margins({left: 40, right: 30, top: 0, bottom: 40})
+                    .dimension(saleDimension)
+                    .group(saleGroup)
+                    .seriesAccessor(function(d) { return d.key[1]; })
+                    .keyAccessor(function(d) {return d.key[0];})
+                    .valueAccessor(function(d) {return d.value.sum})
+                    .elasticY(true)
+                    .elasticX(true)
+                    .shareColors(true)
+                    .colors(d3.scale.ordinal().range(["#ff7f0e", "#2ca02c", "#d62728", "#1f77b4"]))
+                    .colorDomain(["OE MOTORCRAFT ROTOR AND DRUM", "BRAKE DRUM ASSEMBLIES", "HUB ASSEMBLIES", "MOTORCRAFT NON-RETAIL ROTOR & DRUM"])
+                    .colorAccessor(function(d) {
+                        if(d.data != null)
+                            return d.data.value.part_category;
+                        else return d[0].data.value.part_category;
+                    })
+                    .xAxisLabel("Month")
+                    .yAxisLabel("Sales")
+                    .xUnits(d3.time.months)
+                    .x(d3.time.scale().domain(extent))
+                    .renderHorizontalGridLines(true)
+                    .renderVerticalGridLines(true)
+                    .brushOn(false)
+                    .renderTitle(true)
+                    .title(function (d) {
+                        return [
+                            "Month: " + dateFormat(d.key[0]),
+                            "Part Number: " + d.key[1],
+                            "Part Category: " + d.value.part_category,
+                            "Retail Revenue: $" + d3.round(d.value.sum, 2)
+                        ].join("\n");
+                    });;
+
+            chart.xAxis().tickFormat(function(v) {return dateFormat(v);});
+
+            accounting.settings.currency.format = {
+                pos : "%s%v",
+                neg : "(%s%v)",
+                zero: "%s%v"
+            };
+            chart.yAxis().tickFormat(function(v) {return accounting.formatMoney(v, "$", 0);});
+
+            chart2
+                    .width(300)
+                    .height(388)
+                    .margins({left: 40, right: 0, top: 0, bottom: 40})
+                    .dimension(categoryDimension)
+                    .group(categoryGroup)
+                    .colors(d3.scale.ordinal().domain(["OE MOTORCRAFT ROTOR AND DRUM", "BRAKE DRUM ASSEMBLIES", "HUB ASSEMBLIES", "MOTORCRAFT NON-RETAIL ROTOR & DRUM"]).range(["#ff7f0e", "#2ca02c", "#d62728", "#1f77b4"]))
+                    .elasticX(true)
+                    .xAxis().ticks(4);
+
+            var partGroupings = partGroup.order(order).top(Infinity);
+            var parts = [];
+            for (var i = 0; i < partGroupings.length; i++)
+                parts.push(partGroupings[i].key);
+            var partX = d3.scale.ordinal().domain(parts);
+
+            partChart
+                    .dimension(partDimension)
+                    .group(partGroup)
+                    .gap(0)
+                    .margins({left: 40, right: 40, top: 10, bottom: 10})
+                    .x(partX)
+                    .width(1043)
+                    .height(150)
+                    .elasticY(true)
+                    .renderHorizontalGridLines(true)
+                    .colors(d3.scale.ordinal().domain([""]).range(["#7f7f7f"]))
+                    .yAxisLabel("Yearly Revenue")
+                    .xAxisLabel("Part")
+                    .xUnits(dc.units.ordinal)
+                    .valueAccessor(function(d) {return d.value.sum});
+
+            partChart.yAxis().ticks(4);
+            partChart.xAxis().tickValues([]);
+
+
+            dc.renderAll();
+
+            brush = d3.svg.brush()
+                    .x(partX)
+                    .on("brush", brushmove)
+                    .on("brushend", brushend);
+            partChart.svg()
+                    .append("g")
+                    .attr("class", "brush")
+                    .call(brush)
+                    .attr("transform", "translate(52,10)")
+                    .selectAll("rect")
+                    .attr("height", 140);
+
+            function brushmove() {
+                var s = d3.event.target.extent();
+                partDimension.filter(
+                        function(d){
+                            var val = partX(d);
+                            if(val < s[0])
+                                return false;
+                            if(val > s[1])
+                                return false;
+                            else return true;
+                        }
+                );
+                dc.redrawAll();
+            }
+            function brushend() {
+                if(d3.event.target.empty())
+                    partDimension.filterAll();
+                dc.redrawAll();
+            }
+
+            function AddXAxis(chartToUpdate, displayText)
+            {
+
+                chartToUpdate.svg()
+                        .append("text")
+                        .attr("class", "x-axis-label")
+                        .attr("text-anchor", "middle")
+                        .attr("x", chartToUpdate.width()/2)
+                        .attr("y", chartToUpdate.height()-3.5)
+                        .text(displayText);
+            }
+            AddXAxis(chart2, "Number of Sales Records");
+
+        },
+        initialize: function()
+        {
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                async: false,
+                url: "/retrieve_sales_data",
+                success: function(data){
+                    var dateFormat = d3.time.format("%Y-%m-%dT%XZ");
+                    data.forEach(function (d) {
+                        //part_number
+                        //part_category
+                        d.from_date         = d3.time.month(dateFormat.parse(d.from_date));
+                        d.dealer_price      = +d.dealer_price;
+                        d.gross_quantity    = +d.gross_quantity;
+                        d.gross_revenue     = +d.gross_revenue;
+                        d.id                = +d.id;
+                        d.retail_quantity   = +d.retail_quantity;
+                        d.retail_revenue    = +d.retail_revenue;
+                    });
+                    salesChart.initChart(data);
+                }
+            });
+        }
+    };
+    salesChart.initialize();
+
+</script>

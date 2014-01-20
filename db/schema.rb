@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140103155205) do
+ActiveRecord::Schema.define(:version => 20140117180410) do
 
   create_table "competition_prices", :force => true do |t|
     t.integer  "row_id"
@@ -55,6 +55,19 @@ ActiveRecord::Schema.define(:version => 20140103155205) do
     t.string   "part_name"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
+  end
+
+  create_table "sales", :force => true do |t|
+    t.datetime "from_date"
+    t.string   "part_number"
+    t.decimal  "retail_revenue"
+    t.integer  "retail_quantity"
+    t.decimal  "dealer_price"
+    t.integer  "gross_quantity"
+    t.decimal  "gross_revenue"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+    t.string   "part_category"
   end
 
   create_table "users", :force => true do |t|

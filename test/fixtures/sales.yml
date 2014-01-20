@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  from_date: 2014-01-17 10:42:25
+  part_number: MyString
+  retail_revenue: 9.99
+  retail_quantity: 1
+  dealer_price: 9.99
+  gross_quantity: 1
+  gross_revenue: 9.99
+
+two:
+  from_date: 2014-01-17 10:42:25
+  part_number: MyString
+  retail_revenue: 9.99
+  retail_quantity: 1
+  dealer_price: 9.99
+  gross_quantity: 1
+  gross_revenue: 9.99

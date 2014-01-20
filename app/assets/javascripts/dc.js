@@ -4735,6 +4735,8 @@ dc = (function(){
 
                 if (_shareColors) {
                     child.colors(_chart.colors());
+                    child.colorAccessor(_chart.colorAccessor());
+                    child.colorDomain(_chart.colorDomain());
                 }
 
                 child.x(_chart.x());

@@ -1,0 +1,40 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>From date:</b>
+  <%= @sale.from_date %>
+</p>
+
+<p>
+  <b>Part number:</b>
+  <%= @sale.part_number %>
+</p>
+
+<p>
+  <b>Retail revenue:</b>
+  <%= @sale.retail_revenue %>
+</p>
+
+<p>
+  <b>Retail quantity:</b>
+  <%= @sale.retail_quantity %>
+</p>
+
+<p>
+  <b>Dealer price:</b>
+  <%= @sale.dealer_price %>
+</p>
+
+<p>
+  <b>Gross quantity:</b>
+  <%= @sale.gross_quantity %>
+</p>
+
+<p>
+  <b>Gross revenue:</b>
+  <%= @sale.gross_revenue %>
+</p>
+
+
+<%= link_to 'Edit', edit_sale_path(@sale) %> |
+<%= link_to 'Back', sales_path %>
