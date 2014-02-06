@@ -1,5 +1,5 @@
 
-<h5>Sales</h5>
+<h5>Strategies</h5>
 <div id="<%= chartID %>">
 </div>
 
@@ -25,8 +25,6 @@
                 .x(d3.scale.linear().domain([0,20]))
                 .renderArea(true)
                 .renderDataPoints(true)
-                .yAxisLabel("Sales")
-                .xAxisLabel("Time")
                 .dimension(runDimension)
                 .group(speedSumGroup);
 

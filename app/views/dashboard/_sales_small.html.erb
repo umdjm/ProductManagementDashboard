@@ -1,0 +1,94 @@
+
+<h5>Sales</h5>
+<div id="SalesChart" class="chart"></div>
+
+  <script type="text/javascript">
+
+      var chart, ndx, partDimension, partGroup, brush;
+      var salesPartial = {
+          initChart: function(data)
+          {
+              var addC = function(p, d){
+                          p.count++;
+                          p.part_category = d.part_category;
+                          p.sum += d.retail_revenue;
+                          p.quantity += d.retail_quantity;
+                          return p;
+                      },
+                      remC = function(p, d){
+                          p.count--;
+                          p.part_category = d.part_category;
+                          p.sum -= d.retail_revenue;
+                          p.quantity -= d.retail_quantity;
+                          return p;
+                      },
+                      ini = function(){
+                          return {count: 0, sum: 0, quantity: 0, part_category: ""};
+                      },
+                      order = function(p){
+                          return -p.sum;
+                      };
+
+              var dateFormat = d3.time.format("%b");
+
+              var ndx                 = crossfilter(data),
+
+                      saleDimension       = ndx.dimension(function(d) {return d.from_date}),
+                      saleGroup           = saleDimension.group().reduce(addC, remC, ini),
+                      chart               = dc.lineChart("#SalesChart"),
+
+                      extent              = d3.extent(data, function(d){return d.from_date;});
+
+
+              chart
+                      .width(<%= chartWidth %>)
+                      .height(<%= chartHeight %>)
+                      .margins({left: 50, right: 30, top: 0, bottom: 40})
+                      .x(d3.time.scale().domain(extent))
+                      .renderDataPoints(true)
+                      .dimension(saleDimension)
+                      .group(saleGroup)
+                      .xAxisLabel("Month")
+                      .xUnits(d3.time.months)
+                      .valueAccessor(function(d) {return d.value.sum})
+                      .brushOn(false);
+              chart.xAxis().tickFormat(function(v) {return dateFormat(v);});
+
+              accounting.settings.currency.format = {
+                  pos : "%s%v",
+                  neg : "(%s%v)",
+                  zero: "%s%v"
+              };
+              chart.yAxis().tickFormat(function(v) {return accounting.formatMoney(v, "$", 0);});
+
+              dc.renderAll();
+
+          },
+          initialize: function()
+          {
+              $.ajax({
+                  type: "GET",
+                  dataType: "json",
+                  async: false,
+                  url: "/retrieve_sales_data",
+                  success: function(data){
+                      var dateFormat = d3.time.format("%Y-%m-%dT%XZ");
+                      data.forEach(function (d) {
+                          //part_number
+                          //part_category
+                          d.from_date         = d3.time.month(dateFormat.parse(d.from_date));
+                          d.dealer_price      = +d.dealer_price;
+                          d.gross_quantity    = +d.gross_quantity;
+                          d.gross_revenue     = +d.gross_revenue;
+                          d.id                = +d.id;
+                          d.retail_quantity   = +d.retail_quantity;
+                          d.retail_revenue    = +d.retail_revenue;
+                      });
+                      salesPartial.initChart(data);
+                  }
+              });
+          }
+      };
+      salesPartial.initialize();
+
+  </script>
